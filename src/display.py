@@ -157,7 +157,7 @@ def show_leaderboard() -> None:
                         "Participant"
                     ].transform("count"),
                 )
-                .sort_values("submission_time", ascending=False)
+                .sort_values("Scoring metric", ascending=False)
                 .drop_duplicates(["Participant"], keep="first")
                 .assign(position=lambda d: range(1, len(d) + 1))
                 .set_index("position")
@@ -167,6 +167,8 @@ def show_leaderboard() -> None:
                         "Scoring metric",
                         "Recall",
                         "Accuracy",
+                        "Hospitalized",
+                        "Edible but uneaten",
                         "batch",
                         "Attempts",
                     ],
