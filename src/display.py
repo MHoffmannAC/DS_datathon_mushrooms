@@ -111,6 +111,7 @@ def display_admin() -> None:
         st.rerun()
 
 
+@st.fragment(run_every=10)
 def show_leaderboard() -> None:
     """Displays the leaderboard using the in-memory store."""
     if st.session_state.batch == "anonymous":
