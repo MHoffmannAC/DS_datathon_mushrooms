@@ -84,7 +84,7 @@ def get_participant_info() -> bool:
     user_name = st.text_input("Username (Name or Alias):")
     code_input = st.text_input("Secret Batch Code:", type="password")
 
-    if st.button("Log In"):
+    if user_name and code_input:
         batches_df = store["batches"]
         if code_input in batches_df["Code"].to_numpy():
             row = batches_df[batches_df["Code"] == code_input].iloc[0]
@@ -181,39 +181,36 @@ def show_leaderboard() -> None:
 def display_upload_and_evaluate() -> None:
     uploaded_file = st.file_uploader("Choose your submission CSV file", type="csv")
 
-    if uploaded_file is not None:  # noqa: SIM102
-        if st.button("Evaluate & Submit", type="primary"):
-            try:
-                # Prepare and validate the data
-                test = get_ready_test(RESULTS_PATH, uploaded_file)
+    if uploaded_file is not None:
+        try:
+            # Prepare and validate the data
+            test = get_ready_test(RESULTS_PATH, uploaded_file)
 
-                if isinstance(test, pd.DataFrame):
-                    # Calculate scores
-                    participant_results = get_metrics(RESULTS_PATH, test)
+            if isinstance(test, pd.DataFrame):
+                # Calculate scores
+                participant_results = get_metrics(RESULTS_PATH, test)
 
-                    poisoned = participant_results["Hospitalized"].to_numpy()[0]
-                    edible = participant_results["Edible but uneaten"].to_numpy()[0]
-                    info_msg = "Thank you for your submission."
-                    if poisoned > 0:
-                        info_msg = (
-                            info_msg
-                            + f" \n \n You poisened in total {poisoned} people:\n \n "
-                            + "🤢" * poisoned
-                        )
-                    if edible > 0:
-                        info_msg = (
-                            info_msg
-                            + f" \n \n In total {edible} edible mushrooms were not eaten:\n \n "
-                            + "🍄‍🟫" * edible
-                        )
+                poisoned = participant_results["Hospitalized"].to_numpy()[0]
+                edible = participant_results["Edible but uneaten"].to_numpy()[0]
+                info_msg = "Thank you for your submission."
+                if poisoned > 0:
+                    info_msg = (
+                        info_msg
+                        + f" \n \n You poisened in total {poisoned} people:\n \n "
+                        + "🤢" * poisoned
+                    )
+                if edible > 0:
+                    info_msg = (
+                        info_msg
+                        + f" \n \n In total {edible} edible mushrooms were not eaten:\n \n "
+                        + "🍄‍🟫" * edible
+                    )
 
-                    st.warning(info_msg)
+                st.warning(info_msg)
 
-                    # Display immediate results
-                    st.dataframe(participant_results)
+                st.dataframe(participant_results)
 
-                    # Update Global Store and GSheets (Minimizes API calls)
-                    update_submissions(participant_results)
+                update_submissions(participant_results)
 
-            except Exception as e:
-                st.error(f"Error processing file: {e!s}")
+        except Exception as e:
+            st.error(f"Error processing file: {e!s}")

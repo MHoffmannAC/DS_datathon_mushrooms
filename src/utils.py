@@ -11,9 +11,9 @@ RESULTS_PATH = "data/true_y.csv"
 def get_global_store() -> dict[str, Any]:
     """Initialize the global in-memory store to minimize GSheet calls."""
     return {
-        "submissions": {},  # Local cache of DataFrames per batch
+        "submissions": {},
         "gsheet_conn": None,
-        "batches": None,  # Cache for the 'Batches' mapping sheet
+        "batches": None,
         "batches_last_updated": None,
     }
 
@@ -66,7 +66,6 @@ def load_alltime_data(store) -> None:
             except Exception:
                 continue
 
-        # Combine everything into the global cache
         if dfs:
             store["alltime_submissions"] = pd.concat(dfs, ignore_index=True)
         else:

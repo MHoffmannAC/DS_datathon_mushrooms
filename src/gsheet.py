@@ -29,7 +29,6 @@ def _open_spreadsheet():
     ]
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     client = gspread.authorize(creds)
-    # Ensure your secrets have the 'spreadsheet' URL key
     return client.open_by_url(creds_dict["spreadsheet"])
 
 
@@ -47,7 +46,6 @@ def ensure_batch_sheet_exists(batch: str) -> None:
         sh.add_worksheet(title=batch, rows="1000", cols="10")
 
         # Initialize the new tab with the correct headers
-        # Adjust these columns to match your Mushroom Challenge requirements
         headers = [
             "Participant",
             "Scoring metric",

@@ -11,7 +11,11 @@ from src.utils import state_inits
 
 
 def main() -> None:
-    st.set_page_config(page_title="Mushroom Classification Challenge", page_icon="🍄", layout="wide")
+    st.set_page_config(
+        page_title="Mushroom Classification Challenge",
+        page_icon="🍄",
+        layout="wide",
+    )
     st.title("🍄 Mushroom Classification Challenge", anchor=False)
 
     state_inits()
