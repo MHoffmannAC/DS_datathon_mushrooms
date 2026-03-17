@@ -182,7 +182,16 @@ def display_upload_and_evaluate() -> None:
                     # Calculate scores
                     participant_results = get_metrics(RESULTS_PATH, test)
 
-                    st.success("File processed successfully!")
+                    print(participant_results["Hospitalized"].to_numpy())
+                    poisoned = participant_results["Hospitalized"].to_numpy()[0]
+                    edible = participant_results["Edible but uneaten"].to_numpy()[0]
+                    info_msg = "Thank you for your submission."
+                    if poisoned > 0:
+                        info_msg = info_msg + f" \n \n You poisened in total {poisoned} people:\n \n "+"🤢"*poisoned
+                    if edible > 0:
+                        info_msg = info_msg + f" \n \n In total {edible} edible mushrooms were not eaten:\n \n "+"🍄‍🟫"*edible
+
+                    st.warning(info_msg)
 
                     # Display immediate results
                     st.dataframe(participant_results)
