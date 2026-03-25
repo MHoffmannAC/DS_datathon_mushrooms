@@ -141,7 +141,8 @@ def show_leaderboard() -> None:
             .drop_duplicates(["Participant"], keep="first")
             .assign(position=lambda df_: range(1, len(df_) + 1))
             .set_index("position")
-            .filter(["Participant", "Scoring metric", "Recall", "Accuracy", "Attempts"])
+            .filter(["Participant", "Scoring metric", "Recall", "Accuracy",
+                     "Hospitalized", "Edible but uneaten", "Attempts"])
         )
         st.dataframe(leaderboard_df, use_container_width=True)
     else:
