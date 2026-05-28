@@ -18,6 +18,9 @@ def main() -> None:
     )
     st.title("🍄 Mushroom Classification Challenge", anchor=False)
 
+    if st.session_state.get("batch") == "Instructor":
+        display_admin()
+
     state_inits()
 
     if get_participant_info():
@@ -27,11 +30,6 @@ def main() -> None:
 
         plot_submissions()
         show_leaderboard()
-
-        # 4. Admin Access
-        # Only shows if the user's batch code mapped to the "Instructor" batch
-        if st.session_state.batch == "Instructor":
-            display_admin()
 
 
 if __name__ == "__main__":
