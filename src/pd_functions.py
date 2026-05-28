@@ -78,7 +78,7 @@ def get_metrics(results_path: str, test: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(
         [
             {
-                "Participant": st.session_state.text_input,
+                "Participant": st.session_state.user_name,
                 "Scoring metric": round(
                     row_evaluation["tp"]
                     / (row_evaluation["tp"] + row_evaluation["fn"])

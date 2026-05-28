@@ -20,8 +20,6 @@ def get_global_store() -> dict[str, Any]:
 
 def state_inits() -> None:
     """Initialize session state and handles GSheet connection logic."""
-    if "text_input" not in st.session_state:
-        st.session_state.text_input = ""
     if "user_name" not in st.session_state:
         st.session_state.user_name = None
     if "batch" not in st.session_state:

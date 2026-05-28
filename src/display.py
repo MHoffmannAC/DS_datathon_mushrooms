@@ -10,7 +10,7 @@ def plot_submissions() -> None:
     """Plots the participant's progress using data from the global store."""
     store = get_global_store()
     batch = st.session_state.batch
-    user = st.session_state.text_input
+    user = st.session_state.user_name
 
     if batch not in store["submissions"]:
         return
@@ -90,10 +90,11 @@ def get_participant_info() -> bool:
             row = batches_df[batches_df["Code"] == code_input].iloc[0]
 
             st.session_state.user_name = user_name
-            st.session_state.text_input = user_name
             st.session_state.batch = row["Batch"]
 
-            st.session_state.alltime = row["Show All-time?"]
+            st.session_state.alltime = (
+                False if pd.isna(row["Show All-time?"]) else row["Show All-time?"]
+            )
 
             st.rerun()
         else:
@@ -147,6 +148,9 @@ def show_leaderboard() -> None:
         st.dataframe(leaderboard_df, use_container_width=True)
     else:
         st.info("No submissions yet for this batch.")
+
+    if st.button("Refresh leaderboard(s)"):
+        st.rerun()
 
     if st.session_state.alltime and store.get("alltime_submissions") is not None:
         at_df = store["alltime_submissions"]
