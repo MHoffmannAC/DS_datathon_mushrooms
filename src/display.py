@@ -81,6 +81,42 @@ def get_participant_info() -> bool:
             st.error("Could not connect to the Batch Database.")
             st.stop()
 
+    st.write(
+        "If you haven't done so yet, please download the test data, train data, and an example upload file below.",
+    )
+
+    cols = st.columns(3)
+
+    with cols[0], open("data/test.csv", "rb") as f:
+        st.download_button(
+            label="Download test data",
+            data=f,
+            file_name="test.csv",
+            mime="text/csv",
+        )
+
+    with cols[1], open("data/train.csv", "rb") as f:
+        st.download_button(
+            label="Download train data",
+            data=f,
+            file_name="train.csv",
+            mime="text/csv",
+        )
+
+    with cols[2], open("data/sample_submission.csv", "rb") as f:
+        st.download_button(
+            label="Download example upload",
+            data=f,
+            file_name="example_upload.csv",
+            mime="text/csv",
+        )
+
+    st.divider()
+
+    st.warning(
+        "Please enter **your name** (real or alias) and **the code** provided by your instructor.",
+    )
+
     user_name = st.text_input("Username (Name or Alias):")
     code_input = st.text_input("Secret Batch Code:", type="password")
 
