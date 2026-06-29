@@ -185,7 +185,9 @@ def show_leaderboard() -> None:
     else:
         st.info("No submissions yet for this batch.")
 
+    st.session_state["manual_refresh"] = False
     if st.button("Refresh leaderboard(s)"):
+        st.session_state["manual_refresh"] = True
         st.rerun()
 
     if st.session_state.alltime and store.get("alltime_submissions") is not None:
@@ -222,7 +224,7 @@ def show_leaderboard() -> None:
 def display_upload_and_evaluate() -> None:
     uploaded_file = st.file_uploader("Choose your submission CSV file", type="csv")
 
-    if uploaded_file is not None:
+    if uploaded_file and not st.session_state.get("manual_refresh", False):
         try:
             # Prepare and validate the data
             test = get_ready_test(RESULTS_PATH, uploaded_file)
