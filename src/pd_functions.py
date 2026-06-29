@@ -1,8 +1,58 @@
+import logging
+import sys
+
 import numpy as np
 import pandas as pd
 import streamlit as st
 
 from src.utils import get_global_store
+
+
+class CloudLogFormatter(logging.Formatter):
+    # ANSI Terminal Palette Codes
+    RESET = "\033[0m"
+    ORANGE = "\033[33m"
+    GREEN = "\033[32m"
+    MAX_USER_LENGTH = 10
+
+    def format(self, record):
+        level_map = {
+            "DEBUG": "DEBUG",
+            "INFO": "INFO",
+            "WARNING": "WARN",
+            "ERROR": "ERROR",
+            "CRITICAL": "FATAL",
+        }
+        raw_user = str(getattr(record, "user", "SYSTEM"))
+        user_formatted = (
+            raw_user[:self.MAX_USER_LENGTH]
+            if len(raw_user) > self.MAX_USER_LENGTH
+            else raw_user.ljust(self.MAX_USER_LENGTH)
+        )
+
+
+        asctime = self.formatTime(record, self.datefmt)
+        levelname = level_map.get(record.levelname, f"{record.levelname:<5}")
+        msg = record.getMessage()
+
+        if "waitlisted" in msg.lower():
+            color_prefix = self.ORANGE
+        elif "completed" in msg.lower() or "success" in msg.lower():
+            color_prefix = self.GREEN
+        else:
+            color_prefix = ""
+
+        # Assemble the final log stream grid string
+        if color_prefix:
+            return f"{asctime} {levelname} - {user_formatted} {color_prefix}{msg}{self.RESET}"
+        return f"{asctime} {levelname} - {user_formatted} {msg}"
+
+log_handler = logging.StreamHandler(sys.stdout)
+log_handler.setFormatter(CloudLogFormatter(datefmt="%Y-%m-%d %H:%M:%S"))
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.handlers = [log_handler]
 
 
 def get_ready_test(results_path: str, uploaded_file) -> pd.DataFrame:
@@ -75,25 +125,36 @@ def get_metrics(results_path: str, test: pd.DataFrame) -> pd.DataFrame:
         )
     )
 
+    score = round(
+        row_evaluation["tp"]
+        / (row_evaluation["tp"] + row_evaluation["fn"])
+        * 0.95
+        + row_evaluation["correct"] / results.shape[0] * 0.05,
+        4,
+    )
+    recall = round(
+        row_evaluation["tp"]
+        / (row_evaluation["tp"] + row_evaluation["fn"]),
+        4,
+    )
+    accuracy = round(row_evaluation["correct"] / results.shape[0], 4)
+    hospitalized = int(row_evaluation["fn"])
+    edible = int(row_evaluation["opportunity_cost"])
+
+    logger.info(
+        f"Evaluation successfull. Accuracy: {score} ({hospitalized} hosp., {edible} uneaten)",
+        extra={"user": st.session_state.user_name, "comp": "UPLOADER"},
+    )
+
     return pd.DataFrame(
         [
             {
                 "Participant": st.session_state.user_name,
-                "Scoring metric": round(
-                    row_evaluation["tp"]
-                    / (row_evaluation["tp"] + row_evaluation["fn"])
-                    * 0.95
-                    + row_evaluation["correct"] / results.shape[0] * 0.05,
-                    4,
-                ),
-                "Recall": round(
-                    row_evaluation["tp"]
-                    / (row_evaluation["tp"] + row_evaluation["fn"]),
-                    4,
-                ),
-                "Accuracy": round(row_evaluation["correct"] / results.shape[0], 4),
-                "Hospitalized": int(row_evaluation["fn"]),
-                "Edible but uneaten": int(row_evaluation["opportunity_cost"]),
+                "Scoring metric": score,
+                "Recall": recall,
+                "Accuracy": accuracy,
+                "Hospitalized": hospitalized,
+                "Edible but uneaten": edible,
                 "submission_time": pd.Timestamp.now().isoformat(),
                 "batch": st.session_state.batch,
             },
