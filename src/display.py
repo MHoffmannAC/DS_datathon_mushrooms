@@ -176,7 +176,16 @@ def show_leaderboard() -> None:
                 ascending=[False, False, False],
             )
             .drop_duplicates(["Participant"], keep="first")
-            .assign(position=lambda df_: range(1, len(df_) + 1))
+            .assign(
+                position=lambda df_: df_["Scoring metric"]
+                .rank(method="min", ascending=False)
+                .astype(int),
+            )
+            .assign(
+                position=lambda df_: df_["position"]
+                .where(df_["position"].ne(df_["position"].shift()), "")
+                .astype(str),
+            )
             .set_index("position")
             .filter(["Participant", "Scoring metric", "Recall", "Accuracy",
                      "Hospitalized", "Edible but uneaten", "Attempts"])
@@ -203,7 +212,16 @@ def show_leaderboard() -> None:
                 )
                 .sort_values("Scoring metric", ascending=False)
                 .drop_duplicates(["Participant"], keep="first")
-                .assign(position=lambda d: range(1, len(d) + 1))
+                .assign(
+                    position=lambda d: d["Scoring metric"]
+                    .rank(method="min", ascending=False)
+                    .astype(int),
+                )
+                .assign(
+                    position=lambda d: d["position"]
+                    .where(d["position"].ne(d["position"].shift()), "")
+                    .astype(str),
+                )
                 .set_index("position")
                 .filter(
                     [
